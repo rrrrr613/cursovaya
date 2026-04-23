@@ -56,6 +56,10 @@ app.get('/favorites', requireAuth, (req, res) => {
     res.sendFile(path.join(__dirname, 'views', 'favorites.html'));
 });
 
+app.get('/profile', requireAuth, (req, res) => {
+    res.sendFile(path.join(__dirname, 'views', 'profile.html'));
+});
+
 // ==================== API АВТОРИЗАЦИИ ====================
 
 // Регистрация
@@ -360,6 +364,179 @@ app.delete('/api/books/:id', requireAuth, (req, res) => {
     );
 });
 
+// Получить профиль пользователя
+app.get('/api/profile', requireAuth, (req, res) => {
+    db.get(
+        'SELECT id, username, email, avatar, reading_goal_year, reading_goal_month, created_at FROM users WHERE id = ?',
+        [req.session.userId],
+        (err, user) => {
+            if (err) {
+                res.status(500).json({ error: err.message });
+                return;
+            }
+            
+            // Получаем статистику чтения
+            const currentYear = new Date().getFullYear();
+            const currentMonth = new Date().getMonth() + 1;
+            
+            db.get(
+                `SELECT 
+                    COUNT(*) as total_books,
+                    SUM(CASE WHEN status = 'finished' THEN 1 ELSE 0 END) as finished_books,
+                    SUM(CASE WHEN status = 'reading' THEN 1 ELSE 0 END) as reading_books,
+                    SUM(total_pages) as total_pages,
+                    SUM(CASE WHEN status = 'finished' THEN total_pages ELSE 0 END) as pages_read,
+                    ROUND(AVG(CASE WHEN rating > 0 THEN rating ELSE NULL END), 1) as avg_rating
+                FROM books WHERE user_id = ?`,
+                [req.session.userId],
+                (err, stats) => {
+                    if (err) {
+                        res.status(500).json({ error: err.message });
+                        return;
+                    }
+                    
+                    // Книги за этот год
+                    db.get(
+                        `SELECT COUNT(*) as year_books FROM books 
+                         WHERE user_id = ? AND status = 'finished' 
+                         AND strftime('%Y', finish_date) = ?`,
+                        [req.session.userId, currentYear.toString()],
+                        (err, yearStats) => {
+                            if (err) {
+                                res.status(500).json({ error: err.message });
+                                return;
+                            }
+                            
+                            // Книги за этот месяц
+                            db.get(
+                                `SELECT COUNT(*) as month_books FROM books 
+                                 WHERE user_id = ? AND status = 'finished' 
+                                 AND strftime('%Y-%m', finish_date) = ?`,
+                                [req.session.userId, `${currentYear}-${currentMonth.toString().padStart(2, '0')}`],
+                                (err, monthStats) => {
+                                    if (err) {
+                                        res.status(500).json({ error: err.message });
+                                        return;
+                                    }
+                                    
+                                    res.json({
+                                        user: {
+                                            username: user.username,
+                                            email: user.email,
+                                            avatar: user.avatar,
+                                            reading_goal_year: user.reading_goal_year || 0,
+                                            reading_goal_month: user.reading_goal_month || 0,
+                                            joined: user.created_at
+                                        },
+                                        stats: {
+                                            total_books: stats.total_books || 0,
+                                            finished_books: stats.finished_books || 0,
+                                            reading_books: stats.reading_books || 0,
+                                            total_pages: stats.total_pages || 0,
+                                            pages_read: stats.pages_read || 0,
+                                            avg_rating: stats.avg_rating || 0
+                                        },
+                                        goals: {
+                            year_books: yearStats?.year_books || 0,
+                                            month_books: monthStats?.month_books || 0
+                                        }
+                                    });
+                                }
+                            );
+                        }
+                    );
+                }
+            );
+        }
+    );
+});
+
+// Обновить цели чтения
+app.put('/api/profile/goals', requireAuth, (req, res) => {
+    const { reading_goal_year, reading_goal_month } = req.body;
+    
+    db.run(
+        'UPDATE users SET reading_goal_year = ?, reading_goal_month = ? WHERE id = ?',
+        [reading_goal_year || 0, reading_goal_month || 0, req.session.userId],
+        function(err) {
+            if (err) {
+                res.status(500).json({ error: err.message });
+                return;
+            }
+            res.json({ message: 'Цели обновлены' });
+        }
+    );
+});
+
+// Обновить аватар
+app.put('/api/profile/avatar', requireAuth, (req, res) => {
+    const { avatar } = req.body;
+    
+    db.run(
+        'UPDATE users SET avatar = ? WHERE id = ?',
+        [avatar, req.session.userId],
+        function(err) {
+            if (err) {
+                res.status(500).json({ error: err.message });
+                return;
+            }
+            res.json({ message: 'Аватар обновлён' });
+        }
+    );
+});
+
+// Статистика по месяцам (для графика)
+app.get('/api/profile/monthly-stats', requireAuth, (req, res) => {
+    const currentYear = new Date().getFullYear();
+    
+    db.all(
+        `SELECT strftime('%m', finish_date) as month, COUNT(*) as count 
+         FROM books 
+         WHERE user_id = ? AND status = 'finished' AND strftime('%Y', finish_date) = ?
+         GROUP BY strftime('%m', finish_date)
+         ORDER BY month`,
+        [req.session.userId, currentYear.toString()],
+        (err, rows) => {
+            if (err) {
+                res.status(500).json({ error: err.message });
+                return;
+            }
+            
+            // Заполняем все месяцы
+            const monthlyData = {};
+            for (let i = 1; i <= 12; i++) {
+                monthlyData[i] = 0;
+            }
+            rows.forEach(row => {
+                monthlyData[parseInt(row.month)] = row.count;
+            });
+            
+            res.json(monthlyData);
+        }
+    );
+});
+
+// Любимые авторы (топ 5)
+app.get('/api/profile/top-authors', requireAuth, (req, res) => {
+    db.all(
+        `SELECT author, COUNT(*) as count 
+         FROM books 
+         WHERE user_id = ? AND status = 'finished'
+         GROUP BY author 
+         ORDER BY count DESC 
+         LIMIT 5`,
+        [req.session.userId],
+        (err, rows) => {
+            if (err) {
+                res.status(500).json({ error: err.message });
+                return;
+            }
+            res.json(rows);
+        }
+    );
+});
+
+
 // Получить статистику пользователя
 app.get('/api/statistics', requireAuth, (req, res) => {
     db.get(
@@ -384,7 +561,7 @@ app.get('/api/statistics', requireAuth, (req, res) => {
 });
 
 // Запуск сервера
-app.listen(PORT, () => {
+app.listen(PORT, '0.0.0.0', () => {
     console.log('\n=================================');
     console.log('📚 ЧИТАТЕЛЬСКИЙ ДНЕВНИК');
     console.log('=================================');

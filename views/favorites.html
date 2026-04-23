@@ -382,6 +382,7 @@
             <a href="/favorites" class="active">Избранное</a>
             <span class="user-name" id="username">Загрузка...</span>
             <a href="/logout" class="logout-btn">Выйти</a>
+            <a href="/profile" class="profile-link" style="font-size: 20px;">👤</a>
         </div>
     </div>
 
@@ -507,9 +508,6 @@
                                 <div class="book-author">${escapeHtml(book.author)}</div>
                             </div>
                             <div class="edit-icon" onclick="editBook(${book.id})">✏️</div>
-                        </div>
-                        <div class="stars">
-                            ${renderStars(book.rating || 0)}
                         </div>
                     </div>
                 </div>

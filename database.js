@@ -5,18 +5,21 @@ const dbPath = path.resolve(__dirname, 'reading_tracker.db');
 const db = new sqlite3.Database(dbPath);
 
 db.serialize(() => {
-    // Таблица пользователей
+    // Таблица пользователей (расширенная)
     db.run(`
         CREATE TABLE IF NOT EXISTS users (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             username TEXT UNIQUE NOT NULL,
             email TEXT UNIQUE NOT NULL,
             password TEXT NOT NULL,
+            avatar TEXT,
+            reading_goal_year INTEGER DEFAULT 0,
+            reading_goal_month INTEGER DEFAULT 0,
             created_at DATETIME DEFAULT CURRENT_TIMESTAMP
         )
     `);
 
-    // Таблица книг (обновлённая)
+    // Таблица книг
     db.run(`
         CREATE TABLE IF NOT EXISTS books (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -47,6 +50,18 @@ db.serialize(() => {
             FOREIGN KEY (book_id) REFERENCES books(id) ON DELETE CASCADE
         )
     `);
+
+    // Добавляем колонки если их нет (для обновления старых баз)
+    db.all("PRAGMA table_info(users)", (err, columns) => {
+        if (err) return;
+        const hasAvatar = columns.some(col => col.name === 'avatar');
+        const hasGoalYear = columns.some(col => col.name === 'reading_goal_year');
+        const hasGoalMonth = columns.some(col => col.name === 'reading_goal_month');
+        
+        if (!hasAvatar) db.run("ALTER TABLE users ADD COLUMN avatar TEXT");
+        if (!hasGoalYear) db.run("ALTER TABLE users ADD COLUMN reading_goal_year INTEGER DEFAULT 0");
+        if (!hasGoalMonth) db.run("ALTER TABLE users ADD COLUMN reading_goal_month INTEGER DEFAULT 0");
+    });
 
     console.log('✅ База данных инициализирована');
 });

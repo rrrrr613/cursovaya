@@ -1,0 +1,528 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Профиль - Читательский дневник</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', 'Roboto', sans-serif;
+            background: #f0ebe4;
+            min-height: 100vh;
+        }
+
+        .header {
+            background: #5c2e2e;
+            padding: 15px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .logo {
+            font-size: 20px;
+            color: #f0e6d2;
+            font-weight: 400;
+            letter-spacing: 1px;
+        }
+
+        .nav {
+            display: flex;
+            gap: 20px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .nav a {
+            color: #d4c5a9;
+            text-decoration: none;
+            font-size: 14px;
+            transition: color 0.2s;
+        }
+
+        .nav a:hover {
+            color: #f0e6d2;
+        }
+
+        .nav a.active {
+            color: #f0e6d2;
+            border-bottom: 1px solid #f0e6d2;
+            padding-bottom: 4px;
+        }
+
+        .user-name {
+            color: #f0e6d2;
+            font-size: 14px;
+            margin-left: 20px;
+            padding-left: 20px;
+            border-left: 1px solid #7a4a4a;
+        }
+
+        .logout-btn {
+            background: #4a2424;
+            padding: 6px 15px;
+            border-radius: 20px;
+            color: #f0e6d2 !important;
+        }
+
+        .logout-btn:hover {
+            background: #3a1a1a;
+        }
+
+        .profile-link {
+            font-size: 20px !important;
+            padding: 5px 10px !important;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 30px 20px;
+        }
+
+        /* Карточки */
+        .card {
+            background: white;
+            border-radius: 16px;
+            padding: 25px;
+            margin-bottom: 25px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+
+        .card-title {
+            font-size: 18px;
+            color: #3d1e1e;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #e0d5cc;
+        }
+
+        /* Профиль */
+        .profile-header {
+            display: flex;
+            align-items: center;
+            gap: 25px;
+            flex-wrap: wrap;
+        }
+
+        .avatar {
+            width: 100px;
+            height: 100px;
+            background: #e0d5cc;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 48px;
+            color: #8a7a6a;
+            overflow: hidden;
+            cursor: pointer;
+        }
+
+        .avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .profile-info h2 {
+            font-size: 24px;
+            color: #3d1e1e;
+            margin-bottom: 5px;
+        }
+
+        .profile-info p {
+            color: #8a7a6a;
+            font-size: 14px;
+        }
+
+        .joined-date {
+            color: #8a7a6a;
+            font-size: 12px;
+            margin-top: 5px;
+        }
+
+        /* Статистика сетка */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 20px;
+        }
+
+        .stat-item {
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 32px;
+            font-weight: bold;
+            color: #5c2e2e;
+        }
+
+        .stat-label {
+            font-size: 12px;
+            color: #8a7a6a;
+            margin-top: 5px;
+        }
+
+        /* Прогресс бар */
+        .goal-section {
+            margin-top: 20px;
+        }
+
+        .goal-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+        }
+
+        .progress-bar-container {
+            background: #e0d5cc;
+            border-radius: 10px;
+            height: 8px;
+            overflow: hidden;
+        }
+
+        .progress-bar {
+            background: #5c2e2e;
+            height: 100%;
+            border-radius: 10px;
+            width: 0%;
+            transition: width 0.3s;
+        }
+
+        .goal-input {
+            margin-top: 10px;
+            display: flex;
+            gap: 10px;
+        }
+
+        .goal-input input {
+            flex: 1;
+            padding: 8px;
+            border: 1px solid #ddd0c0;
+            border-radius: 8px;
+        }
+
+        .goal-input button {
+            padding: 8px 16px;
+            background: #5c2e2e;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+
+        /* График */
+        .chart {
+            display: flex;
+            align-items: flex-end;
+            justify-content: space-around;
+            height: 200px;
+            gap: 5px;
+            margin-top: 20px;
+        }
+
+        .chart-bar {
+            flex: 1;
+            background: #5c2e2e;
+            border-radius: 8px 8px 0 0;
+            transition: height 0.3s;
+            min-height: 4px;
+        }
+
+        .chart-label {
+            text-align: center;
+            font-size: 10px;
+            color: #8a7a6a;
+            margin-top: 5px;
+        }
+
+        /* Авторы */
+        .author-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .author-tag {
+            background: #f0ebe4;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 14px;
+            color: #5c2e2e;
+        }
+
+        .edit-goals-btn {
+            background: none;
+            border: none;
+            color: #5c2e2e;
+            cursor: pointer;
+            font-size: 12px;
+            margin-left: 10px;
+        }
+
+        @media (max-width: 768px) {
+            .header {
+                flex-direction: column;
+                text-align: center;
+            }
+            .profile-header {
+                flex-direction: column;
+                text-align: center;
+            }
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="logo">Читательский дневник</div>
+        <div class="nav">
+            <a href="/">Главная</a>
+            <a href="/favorites">Избранное</a>
+            <a href="/profile" class="active profile-link">👤</a>
+            <span class="user-name" id="username">Загрузка...</span>
+            <a href="/logout" class="logout-btn">Выйти</a>
+        </div>
+    </div>
+
+    <div class="container">
+        <div id="profileContent">Загрузка...</div>
+    </div>
+
+    <script>
+        let profileData = null;
+
+        async function loadUser() {
+            try {
+                const response = await fetch('/api/me');
+                const data = await response.json();
+                if (!data.authenticated) {
+                    window.location.href = '/login';
+                } else {
+                    document.getElementById('username').innerHTML = `👤 ${data.username}`;
+                }
+            } catch (error) {
+                console.error('Ошибка:', error);
+            }
+        }
+
+        async function loadProfile() {
+            try {
+                const response = await fetch('/api/profile');
+                profileData = await response.json();
+                
+                const monthlyResponse = await fetch('/api/profile/monthly-stats');
+                const monthlyData = await monthlyResponse.json();
+                
+                const authorsResponse = await fetch('/api/profile/top-authors');
+                const authorsData = await authorsResponse.json();
+                
+                renderProfile(monthlyData, authorsData);
+            } catch (error) {
+                document.getElementById('profileContent').innerHTML = '<div class="card">Ошибка загрузки профиля</div>';
+            }
+        }
+
+        function renderProfile(monthlyData, authorsData) {
+            const stats = profileData.stats;
+            const goals = profileData.goals;
+            const user = profileData.user;
+            
+            const yearGoal = user.reading_goal_year || 0;
+            const monthGoal = user.reading_goal_month || 0;
+            const yearProgress = yearGoal > 0 ? Math.min(100, Math.round(goals.year_books / yearGoal * 100)) : 0;
+            const monthProgress = monthGoal > 0 ? Math.min(100, Math.round(goals.month_books / monthGoal * 100)) : 0;
+            
+            // Страниц в день для достижения годовой цели
+            const daysLeft = Math.ceil((new Date(new Date().getFullYear(), 11, 31) - new Date()) / (1000 * 60 * 60 * 24));
+            const pagesNeeded = Math.max(0, (yearGoal - goals.year_books) * 300);
+            const pagesPerDay = daysLeft > 0 ? Math.ceil(pagesNeeded / daysLeft) : 0;
+            
+            const html = `
+                <div class="card">
+                    <div class="profile-header">
+                        <div class="avatar" onclick="changeAvatar()">
+                            ${user.avatar ? `<img src="${user.avatar}" alt="avatar">` : '📖'}
+                        </div>
+                        <div class="profile-info">
+                            <h2>${escapeHtml(user.username)}</h2>
+                            <p>${escapeHtml(user.email)}</p>
+                            <div class="joined-date">📅 В читательском клубе с ${new Date(user.joined).toLocaleDateString('ru-RU')}</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3 class="card-title">📊 Общая статистика</h3>
+                    <div class="stats-grid">
+                        <div class="stat-item">
+                            <div class="stat-value">${stats.finished_books}</div>
+                            <div class="stat-label">Книг прочитано</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-value">${stats.reading_books}</div>
+                            <div class="stat-label">Читаю сейчас</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-value">${stats.pages_read || 0}</div>
+                            <div class="stat-label">Страниц прочитано</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-value">${stats.avg_rating || 0}</div>
+                            <div class="stat-label">Средний рейтинг</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3 class="card-title">🎯 Годовой вызов</h3>
+                    <div class="goal-section">
+                        <div class="goal-header">
+                            <span>${goals.year_books} из ${yearGoal} книг в этом году</span>
+                            <span>${yearProgress}%</span>
+                        </div>
+                        <div class="progress-bar-container">
+                            <div class="progress-bar" style="width: ${yearProgress}%"></div>
+                        </div>
+                        <div class="goal-input">
+                            <input type="number" id="yearGoalInput" placeholder="Цель на год" value="${yearGoal || ''}">
+                            <button onclick="updateGoal('year')">Установить</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3 class="card-title">📅 Цель на месяц</h3>
+                    <div class="goal-section">
+                        <div class="goal-header">
+                            <span>${goals.month_books} из ${monthGoal} книг в этом месяце</span>
+                            <span>${monthProgress}%</span>
+                        </div>
+                        <div class="progress-bar-container">
+                            <div class="progress-bar" style="width: ${monthProgress}%"></div>
+                        </div>
+                        <div class="goal-input">
+                            <input type="number" id="monthGoalInput" placeholder="Цель на месяц" value="${monthGoal || ''}">
+                            <button onclick="updateGoal('month')">Установить</button>
+                        </div>
+                    </div>
+                </div>
+
+                ${pagesPerDay > 0 ? `
+                <div class="card">
+                    <h3 class="card-title">⚡ Ежедневная привычка</h3>
+                    <div class="stats-grid">
+                        <div class="stat-item">
+                            <div class="stat-value">${pagesPerDay}</div>
+                            <div class="stat-label">страниц в день</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-value">${daysLeft}</div>
+                            <div class="stat-label">дней до конца года</div>
+                        </div>
+                    </div>
+                    <p style="font-size: 12px; color: #8a7a6a; text-align: center; margin-top: 10px;">
+                        Читайте ${pagesPerDay} страниц в день, чтобы достичь цели в ${yearGoal} книг!
+                    </p>
+                </div>
+                ` : ''}
+
+                <div class="card">
+                    <h3 class="card-title">📈 Активность по месяцам (${new Date().getFullYear()})</h3>
+                    <div class="chart">
+                        ${renderChart(monthlyData)}
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3 class="card-title">🏆 Любимые авторы</h3>
+                    <div class="author-list">
+                        ${authorsData.length > 0 ? authorsData.map(a => `<span class="author-tag">${escapeHtml(a.author)} (${a.count})</span>`).join('') : '<span class="author-tag">Пока нет</span>'}
+                    </div>
+                </div>
+            `;
+            
+            document.getElementById('profileContent').innerHTML = html;
+        }
+
+        function renderChart(monthlyData) {
+            const months = ['Янв', 'Фев', 'Мар', 'Апр', 'Май', 'Июн', 'Июл', 'Авг', 'Сен', 'Окт', 'Ноя', 'Дек'];
+            const values = [];
+            let maxValue = 0;
+            
+            for (let i = 1; i <= 12; i++) {
+                values.push(monthlyData[i] || 0);
+                if ((monthlyData[i] || 0) > maxValue) maxValue = monthlyData[i] || 0;
+            }
+            
+            return months.map((month, i) => {
+                const height = maxValue > 0 ? (values[i] / maxValue * 150) : 0;
+                return `
+                    <div style="flex: 1; text-align: center;">
+                        <div class="chart-bar" style="height: ${height}px;"></div>
+                        <div class="chart-label">${month}</div>
+                        <div style="font-size: 10px; color: #5c2e2e;">${values[i]}</div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        async function updateGoal(type) {
+            let yearGoal = parseInt(document.getElementById('yearGoalInput')?.value) || 0;
+            let monthGoal = parseInt(document.getElementById('monthGoalInput')?.value) || 0;
+            
+            if (type === 'year') monthGoal = profileData.user.reading_goal_month || 0;
+            if (type === 'month') yearGoal = profileData.user.reading_goal_year || 0;
+            
+            try {
+                const response = await fetch('/api/profile/goals', {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ reading_goal_year: yearGoal, reading_goal_month: monthGoal })
+                });
+                
+                if (response.ok) {
+                    loadProfile();
+                } else {
+                    alert('Ошибка сохранения цели');
+                }
+            } catch (error) {
+                alert('Ошибка соединения');
+            }
+        }
+
+        function changeAvatar() {
+            const url = prompt('Введите URL аватара (или оставьте пустым):');
+            if (url === null) return;
+            
+            fetch('/api/profile/avatar', {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ avatar: url || null })
+            }).then(() => loadProfile());
+        }
+
+        function escapeHtml(text) {
+            if (!text) return '';
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        loadUser();
+        loadProfile();
+    </script>
+</body>
+</html>
