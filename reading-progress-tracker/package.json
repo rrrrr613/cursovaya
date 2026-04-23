@@ -1,0 +1,26 @@
+{
+  "name": "reading-progress-tracker",
+  "version": "1.0.0",
+  "description": "Система отслеживания прогресса чтения книг",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "nodemon server.js"
+  },
+  "dependencies": {
+    "body-parser": "^1.20.4",
+    "express": "^4.22.1",
+    "sqlite3": "^5.1.7"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.1"
+  },
+  "keywords": [
+    "reading",
+    "tracker",
+    "books",
+    "progress"
+  ],
+  "author": "Student",
+  "license": "MIT"
+}

@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Мои книги - Трекер чтения</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .header {
+            background: white;
+            border-radius: 15px;
+            padding: 20px 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        
+        h1 {
+            color: #667eea;
+            font-size: 28px;
+        }
+        
+        .nav-buttons {
+            display: flex;
+            gap: 15px;
+        }
+        
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            text-decoration: none;
+            display: inline-block;
+            transition: all 0.3s;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102,126,234,0.4);
+        }
+        
+        .btn-danger {
+            background: #e74c3c;
+            color: white;
+        }
+        
+        .btn-danger:hover {
+            background: #c0392b;
+        }
+        
+        .btn-success {
+            background: #27ae60;
+            color: white;
+        }
+        
+        .books-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 20px;
+        }
+        
+        .book-card {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+            transition: transform 0.3s;
+        }
+        
+        .book-card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .book-title {
+            font-size: 20px;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 5px;
+        }
+        
+        .book-author {
+            color: #666;
+            margin-bottom: 15px;
+            font-style: italic;
+        }
+        
+        .progress-bar-container {
+            background: #e0e0e0;
+            border-radius: 10px;
+            height: 20px;
+            margin: 15px 0;
+            overflow: hidden;
+        }
+        
+        .progress-bar {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            height: 100%;
+            border-radius: 10px;
+            transition: width 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 11px;
+            font-weight: bold;
+        }
+        
+        .book-stats {
+            display: flex;
+            justify-content: space-between;
+            margin: 10px 0;
+            font-size: 14px;
+            color: #555;
+        }
+        
+        .status {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+        
+        .status-reading { background: #3498db; color: white; }
+        .status-finished { background: #27ae60; color: white; }
+        .status-planned { background: #95a5a6; color: white; }
+        
+        .rating {
+            color: #f39c12;
+            font-size: 16px;
+        }
+        
+        .card-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+        }
+        
+        .btn-small {
+            padding: 6px 12px;
+            font-size: 12px;
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 60px;
+            background: white;
+            border-radius: 15px;
+        }
+        
+        .empty-state h3 {
+            color: #666;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📚 Моя библиотека</h1>
+            <div class="nav-buttons">
+                <a href="/add-book" class="btn btn-primary">➕ Добавить книгу</a>
+                <a href="/statistics" class="btn btn-primary">📊 Статистика</a>
+            </div>
+        </div>
+        
+        <div id="booksContainer" class="books-grid">
+            <div class="empty-state">
+                <h3>Загрузка...</h3>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        async function loadBooks() {
+            try {
+                const response = await fetch('/api/books');
+                const books = await response.json();
+                
+                const container = document.getElementById('booksContainer');
+                
+                if (books.length === 0) {
+                    container.innerHTML = `
+                        <div class="empty-state">
+                            <h3>📖 У вас пока нет книг</h3>
+                            <a href="/add-book" class="btn btn-primary">Добавить первую книгу</a>
+                        </div>
+                    `;
+                    return;
+                }
+                
+                container.innerHTML = books.map(book => {
+                    const progress = (book.current_page / book.total_pages * 100).toFixed(1);
+                    const statusText = {
+                        'reading': 'Читаю',
+                        'finished': 'Прочитано',
+                        'planned': 'Запланировано'
+                    }[book.status] || book.status;
+                    
+                    const stars = '★'.repeat(book.rating) + '☆'.repeat(5 - book.rating);
+                    
+                    return `
+                        <div class="book-card">
+                            <div class="book-title">${escapeHtml(book.title)}</div>
+                            <div class="book-author">${escapeHtml(book.author)}</div>
+                            <div class="book-stats">
+                                <span>📄 ${book.current_page} / ${book.total_pages} стр.</span>
+                                <span class="status status-${book.status}">${statusText}</span>
+                            </div>
+                            <div class="progress-bar-container">
+                                <div class="progress-bar" style="width: ${progress}%">${progress}%</div>
+                            </div>
+                            <div class="book-stats">
+                                <span class="rating">⭐ ${stars}</span>
+                                <span>📅 ${book.start_date || '—'}</span>
+                            </div>
+                            <div class="card-actions">
+                                <a href="/book/${book.id}" class="btn btn-primary btn-small">📖 Подробнее</a>
+                                <button onclick="deleteBook(${book.id})" class="btn btn-danger btn-small">🗑 Удалить</button>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+            } catch (error) {
+                console.error('Ошибка загрузки:', error);
+                document.getElementById('booksContainer').innerHTML = '<div class="empty-state"><h3>❌ Ошибка загрузки книг</h3></div>';
+            }
+        }
+        
+        async function deleteBook(id) {
+            if (confirm('Вы уверены, что хотите удалить эту книгу?')) {
+                try {
+                    const response = await fetch(`/api/books/${id}`, { method: 'DELETE' });
+                    if (response.ok) {
+                        loadBooks();
+                    } else {
+                        alert('Ошибка при удалении');
+                    }
+                } catch (error) {
+                    alert('Ошибка: ' + error.message);
+                }
+            }
+        }
+        
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+        
+        loadBooks();
+    </script>
+</body>
+</html>
