@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Регистрация - Читательский дневник</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', 'Roboto', sans-serif;
+            background: #2d1a1a;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .container {
+            display: flex;
+            width: 100%;
+            max-width: 1000px;
+            min-height: 550px;
+            background: #fff;
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+        }
+
+        .hero {
+            flex: 1;
+            background: #5c2e2e;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 40px;
+            text-align: center;
+        }
+
+        .hero h1 {
+            font-size: 36px;
+            color: #f0e6d2;
+            margin-bottom: 20px;
+            font-weight: 400;
+            letter-spacing: 2px;
+        }
+
+        .hero p {
+            font-size: 16px;
+            color: #d4c5a9;
+            line-height: 1.6;
+            max-width: 280px;
+        }
+
+        .form-panel {
+            flex: 1;
+            background: #f5efe8;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 40px;
+        }
+
+        .form-card {
+            width: 100%;
+            max-width: 320px;
+        }
+
+        .form-card h2 {
+            font-size: 28px;
+            color: #3d1e1e;
+            margin-bottom: 30px;
+            font-weight: 400;
+            text-align: center;
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+        }
+
+        .input-group label {
+            display: block;
+            font-size: 14px;
+            color: #5c4a3a;
+            margin-bottom: 6px;
+        }
+
+        .input-group input {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd0c0;
+            border-radius: 8px;
+            font-size: 14px;
+            background: white;
+            outline: none;
+        }
+
+        .input-group input:focus {
+            border-color: #5c2e2e;
+        }
+
+        .btn {
+            width: 100%;
+            padding: 12px;
+            background: #5c2e2e;
+            color: #f0e6d2;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+
+        .btn:hover {
+            background: #4a2424;
+        }
+
+        .switch-link {
+            text-align: center;
+            margin-top: 20px;
+            font-size: 14px;
+            color: #8a7a6a;
+        }
+
+        .switch-link a {
+            color: #5c2e2e;
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        .error-message {
+            background: #e8d4d4;
+            color: #b33a3a;
+            padding: 10px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-size: 13px;
+            display: none;
+        }
+
+        .success-message {
+            background: #d4e8d4;
+            color: #2e6b2e;
+            padding: 10px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-size: 13px;
+            display: none;
+        }
+
+        @media (max-width: 768px) {
+            .hero {
+                display: none;
+            }
+            .container {
+                max-width: 90%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="hero">
+            <h1>Присоединяйтесь</h1>
+            <p>Создайте аккаунт и начните отслеживать свои литературные приключения уже сегодня.</p>
+        </div>
+        <div class="form-panel">
+            <div class="form-card">
+                <h2>Регистрация</h2>
+                <div id="error" class="error-message"></div>
+                <div id="success" class="success-message"></div>
+                <form id="registerForm">
+                    <div class="input-group">
+                        <label>Имя пользователя</label>
+                        <input type="text" id="username" required>
+                    </div>
+                    <div class="input-group">
+                        <label>Email</label>
+                        <input type="email" id="email" required>
+                    </div>
+                    <div class="input-group">
+                        <label>Пароль</label>
+                        <input type="password" id="password" required>
+                    </div>
+                    <div class="input-group">
+                        <label>Подтверждение пароля</label>
+                        <input type="password" id="password2" required>
+                    </div>
+                    <button type="submit" class="btn">Зарегистрироваться</button>
+                </form>
+                <div class="switch-link">
+                    Уже есть аккаунт? <a href="/login">Войти</a>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+        document.getElementById('registerForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const username = document.getElementById('username').value;
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            const password2 = document.getElementById('password2').value;
+            const errorDiv = document.getElementById('error');
+            const successDiv = document.getElementById('success');
+            
+            errorDiv.style.display = 'none';
+            successDiv.style.display = 'none';
+            
+            if (password !== password2) {
+                errorDiv.textContent = 'Пароли не совпадают';
+                errorDiv.style.display = 'block';
+                return;
+            }
+            
+            if (password.length < 4) {
+                errorDiv.textContent = 'Пароль должен быть минимум 4 символа';
+                errorDiv.style.display = 'block';
+                return;
+            }
+            
+            try {
+                const response = await fetch('/api/register', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username, email, password })
+                });
+                const data = await response.json();
+                
+                if (response.ok) {
+                    successDiv.textContent = data.message;
+                    successDiv.style.display = 'block';
+                    setTimeout(() => {
+                        window.location.href = '/login';
+                    }, 2000);
+                } else {
+                    errorDiv.textContent = data.error;
+                    errorDiv.style.display = 'block';
+                }
+            } catch (error) {
+                errorDiv.textContent = 'Ошибка соединения';
+                errorDiv.style.display = 'block';
+            }
+        });
+    </script>
+</body>
+</html>

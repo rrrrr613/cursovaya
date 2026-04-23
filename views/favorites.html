@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Читательский дневник</title>
+    <title>Избранное - Читательский дневник</title>
     <style>
         * {
             margin: 0;
@@ -80,72 +80,51 @@
 
         /* Контейнер */
         .container {
-            max-width: 1200px;
+            max-width: 1000px;
             margin: 0 auto;
             padding: 30px 20px;
         }
 
-        /* Вкладки */
-        .tabs {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 30px;
-            border-bottom: 2px solid #e0d5cc;
-            padding-bottom: 10px;
+        .page-title {
+            font-size: 24px;
+            color: #3d1e1e;
+            font-weight: 400;
+            margin-bottom: 25px;
+            letter-spacing: 1px;
         }
 
-        .tab-btn {
-            background: none;
-            border: none;
-            padding: 10px 25px;
-            font-size: 16px;
-            cursor: pointer;
-            color: #8a7a6a;
-            transition: all 0.2s;
-        }
-
-        .tab-btn.active {
-            color: #5c2e2e;
-            border-bottom: 2px solid #5c2e2e;
-            margin-bottom: -12px;
-        }
-
-        /* Сетка карточек */
+        /* Сетка карточек (вертикальные) */
         .books-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-            gap: 20px;
+            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+            gap: 25px;
         }
 
-        /* Карточка книги (горизонтальная) */
+        /* Карточка книги (вертикальная) */
         .book-card {
             background: white;
             border-radius: 12px;
-            display: flex;
-            gap: 15px;
-            padding: 15px;
+            overflow: hidden;
             box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-            position: relative;
             transition: box-shadow 0.2s;
+            position: relative;
         }
 
         .book-card:hover {
-            box-shadow: 0 4px 12px rgba(0,0,0,0.12);
+            box-shadow: 0 6px 16px rgba(0,0,0,0.12);
         }
 
         /* Фото книги */
         .book-cover {
-            width: 90px;
-            height: 120px;
+            width: 100%;
+            height: 280px;
             background: #e0d5cc;
-            border-radius: 8px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 36px;
+            font-size: 48px;
             color: #8a7a6a;
             overflow: hidden;
-            flex-shrink: 0;
         }
 
         .book-cover img {
@@ -156,7 +135,8 @@
 
         /* Информация о книге */
         .book-info {
-            flex: 1;
+            padding: 15px;
+            position: relative;
         }
 
         .book-header {
@@ -170,84 +150,32 @@
             font-weight: 600;
             color: #3d1e1e;
             margin-bottom: 4px;
+            line-height: 1.3;
         }
 
         .book-author {
             font-size: 13px;
             color: #8a7a6a;
-            margin-bottom: 10px;
+            margin-top: 4px;
         }
 
         .edit-icon {
             color: #8a7a6a;
             cursor: pointer;
-            font-size: 18px;
+            font-size: 16px;
             padding: 5px;
+            flex-shrink: 0;
         }
 
         .edit-icon:hover {
             color: #5c2e2e;
         }
 
-        /* Прогресс */
-        .progress-section {
-            margin: 10px 0;
-        }
-
-        .progress-label {
-            font-size: 12px;
+        .empty-state {
+            text-align: center;
+            padding: 60px;
             color: #8a7a6a;
-            margin-bottom: 5px;
-        }
-
-        .progress-bar-container {
-            background: #e0d5cc;
-            border-radius: 10px;
-            height: 6px;
-            overflow: hidden;
-        }
-
-        .progress-bar {
-            background: #5c2e2e;
-            height: 100%;
-            border-radius: 10px;
-            width: 0%;
-        }
-
-        .progress-text {
-            font-size: 11px;
-            color: #5c2e2e;
-            margin-top: 4px;
-        }
-
-        /* Звезды */
-        .stars {
-            display: flex;
-            gap: 4px;
-            margin: 8px 0;
-        }
-
-        .star {
-            font-size: 18px;
-            color: #ddd0c0;
-            cursor: pointer;
-        }
-
-        .star.filled {
-            color: #d4a54a;
-        }
-
-        /* Ссылка на отзыв */
-        .review-link {
-            font-size: 12px;
-            color: #5c2e2e;
-            text-decoration: none;
-            margin-top: 8px;
-            display: inline-block;
-        }
-
-        .review-link:hover {
-            text-decoration: underline;
+            grid-column: 1 / -1;
         }
 
         /* Модальное окно */
@@ -400,15 +328,29 @@
             margin-top: 10px;
         }
 
-        .empty-state {
-            text-align: center;
-            padding: 60px;
-            color: #8a7a6a;
+        .stars {
+            display: flex;
+            gap: 4px;
+            margin: 8px 0;
+        }
+
+        .star {
+            font-size: 18px;
+            color: #ddd0c0;
+            cursor: pointer;
+        }
+
+        .star.filled {
+            color: #d4a54a;
         }
 
         @media (max-width: 768px) {
             .books-grid {
-                grid-template-columns: 1fr;
+                grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+                gap: 15px;
+            }
+            .book-cover {
+                height: 200px;
             }
             .header {
                 flex-direction: column;
@@ -426,29 +368,25 @@
     <div class="header">
         <div class="logo">Читательский дневник</div>
         <div class="nav">
-            <a href="/" class="active">Главная</a>
-            <a href="/favorites">Избранное</a>
+            <a href="/">Главная</a>
+            <a href="/favorites" class="active">Избранное</a>
             <span class="user-name" id="username">Загрузка...</span>
             <a href="/logout" class="logout-btn">Выйти</a>
         </div>
     </div>
 
     <div class="container">
-        <div class="tabs">
-            <button class="tab-btn active" data-tab="reading">Читаю сейчас</button>
-            <button class="tab-btn" data-tab="finished">Завершённые</button>
-        </div>
-
+        <h2 class="page-title">📌 Избранное</h2>
         <div id="booksContainer" class="books-grid">
             <div class="empty-state">Загрузка...</div>
         </div>
     </div>
 
-    <!-- Модальное окно добавления/редактирования -->
+    <!-- Модальное окно редактирования -->
     <div id="bookModal" class="modal">
         <div class="modal-content">
             <div class="modal-header">
-                <h3 id="modalTitle">Добавить книгу</h3>
+                <h3 id="modalTitle">Редактировать книгу</h3>
                 <button class="close-modal" onclick="closeModal()">&times;</button>
             </div>
             <form id="bookForm">
@@ -471,10 +409,6 @@
                 <div class="form-group">
                     <label>Количество страниц</label>
                     <input type="number" id="totalPages" min="1">
-                </div>
-                <div class="form-group">
-                    <label>Прочитано страниц</label>
-                    <input type="number" id="currentPage" min="0">
                 </div>
                 <div class="form-group">
                     <label>Оценка (звёзды)</label>
@@ -502,12 +436,9 @@
     </div>
 
     <script>
-        let currentTab = 'reading';
         let currentRating = 0;
-        let currentBookImage = null;
         let booksData = [];
 
-        // Загрузка имени пользователя
         async function loadUser() {
             try {
                 const response = await fetch('/api/me');
@@ -522,7 +453,6 @@
             }
         }
 
-        // Загрузка книг
         async function loadBooks() {
             try {
                 const response = await fetch('/api/books');
@@ -533,23 +463,16 @@
             }
         }
 
-        // Отображение книг по вкладке
         function renderBooks() {
-            let filteredBooks = [];
-            if (currentTab === 'reading') {
-                filteredBooks = booksData.filter(b => b.status === 'reading');
-            } else {
-                filteredBooks = booksData.filter(b => b.status === 'finished');
-            }
-
+            const favoriteBooks = booksData.filter(b => b.status === 'favorite');
             const container = document.getElementById('booksContainer');
             
-            if (filteredBooks.length === 0) {
-                container.innerHTML = `<div class="empty-state">📖 Нет книг в этой категории</div>`;
+            if (favoriteBooks.length === 0) {
+                container.innerHTML = `<div class="empty-state">📖 В избранном пока нет книг</div>`;
                 return;
             }
 
-            container.innerHTML = filteredBooks.map(book => `
+            container.innerHTML = favoriteBooks.map(book => `
                 <div class="book-card">
                     <div class="book-cover">
                         ${book.image ? `<img src="${book.image}" alt="обложка">` : '📖'}
@@ -562,20 +485,9 @@
                             </div>
                             <div class="edit-icon" onclick="editBook(${book.id})">✏️</div>
                         </div>
-                        ${currentTab === 'reading' ? `
-                            <div class="progress-section">
-                                <div class="progress-label">Прогресс чтения</div>
-                                <div class="progress-bar-container">
-                                    <div class="progress-bar" style="width: ${book.progress || 0}%"></div>
-                                </div>
-                                <div class="progress-text">${book.current_page || 0} из ${book.total_pages || 0} стр. (${book.progress || 0}%)</div>
-                            </div>
-                        ` : `
-                            <div class="stars">
-                                ${renderStars(book.rating || 0)}
-                            </div>
-                            <a href="#" class="review-link" onclick="viewReview(${book.id})">📝 Отзыв</a>
-                        `}
+                        <div class="stars">
+                            ${renderStars(book.rating || 0)}
+                        </div>
                     </div>
                 </div>
             `).join('');
@@ -589,7 +501,6 @@
             return stars;
         }
 
-        // Настройка звезд в модалке
         function setupRatingStars() {
             const stars = document.querySelectorAll('#ratingStars .star');
             stars.forEach(star => {
@@ -621,11 +532,9 @@
                 document.getElementById('title').value = book.title;
                 document.getElementById('author').value = book.author;
                 document.getElementById('totalPages').value = book.total_pages || '';
-                document.getElementById('currentPage').value = book.current_page || 0;
                 document.getElementById('review').value = book.review || '';
                 currentRating = book.rating || 0;
                 
-                // Обновить звезды
                 const stars = document.querySelectorAll('#ratingStars .star');
                 stars.forEach((star, i) => {
                     if (i < currentRating) {
@@ -646,10 +555,8 @@
             document.getElementById('bookForm').reset();
             document.getElementById('bookId').value = '';
             currentRating = 0;
-            currentBookImage = null;
         }
 
-        // Добавление/обновление книги
         document.getElementById('bookForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             const id = document.getElementById('bookId').value;
@@ -657,43 +564,17 @@
                 title: document.getElementById('title').value,
                 author: document.getElementById('author').value,
                 total_pages: parseInt(document.getElementById('totalPages').value) || 0,
-                current_page: parseInt(document.getElementById('currentPage').value) || 0,
                 rating: currentRating,
                 review: document.getElementById('review').value,
-                status: document.getElementById('statusHidden')?.value || 'reading'
+                status: document.getElementById('statusHidden')?.value || 'favorite'
             };
             
-            // Рассчитать прогресс
-            if (bookData.total_pages > 0) {
-                bookData.progress = Math.round(bookData.current_page / bookData.total_pages * 100);
-            } else {
-                bookData.progress = 0;
-            }
-            
-            // Определить статус если не задан
-            if (bookData.current_page === 0 && !bookData.status) {
-                bookData.status = 'favorite';
-            } else if (bookData.current_page === bookData.total_pages && bookData.total_pages > 0) {
-                bookData.status = 'finished';
-            } else if (bookData.current_page > 0) {
-                bookData.status = 'reading';
-            }
-            
             try {
-                let response;
-                if (id) {
-                    response = await fetch(`/api/books/${id}`, {
-                        method: 'PUT',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify(bookData)
-                    });
-                } else {
-                    response = await fetch('/api/books', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify(bookData)
-                    });
-                }
+                const response = await fetch(`/api/books/${id}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(bookData)
+                });
                 
                 if (response.ok) {
                     closeModal();
@@ -705,16 +586,6 @@
             } catch (error) {
                 alert('Ошибка соединения');
             }
-        });
-
-        // Вкладки
-        document.querySelectorAll('.tab-btn').forEach(btn => {
-            btn.addEventListener('click', () => {
-                document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-                btn.classList.add('active');
-                currentTab = btn.dataset.tab;
-                renderBooks();
-            });
         });
 
         function escapeHtml(text) {
@@ -729,7 +600,6 @@
         loadBooks();
         setupRatingStars();
         
-        // Добавляем скрытое поле для статуса
         const hiddenStatus = document.createElement('input');
         hiddenStatus.type = 'hidden';
         hiddenStatus.id = 'statusHidden';
