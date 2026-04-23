@@ -364,6 +364,8 @@ app.delete('/api/books/:id', requireAuth, (req, res) => {
     );
 });
 
+// ==================== API ПРОФИЛЯ ====================
+
 // Получить профиль пользователя
 app.get('/api/profile', requireAuth, (req, res) => {
     db.get(
@@ -375,10 +377,12 @@ app.get('/api/profile', requireAuth, (req, res) => {
                 return;
             }
             
-            // Получаем статистику чтения
             const currentYear = new Date().getFullYear();
             const currentMonth = new Date().getMonth() + 1;
+            const currentYearStr = currentYear.toString();
+            const currentMonthStr = `${currentYear}-${currentMonth.toString().padStart(2, '0')}`;
             
+            // Общая статистика
             db.get(
                 `SELECT 
                     COUNT(*) as total_books,
@@ -395,12 +399,12 @@ app.get('/api/profile', requireAuth, (req, res) => {
                         return;
                     }
                     
-                    // Книги за этот год
+                    // Книги за этот год (по дате завершения ИЛИ дате создания для статуса finished)
                     db.get(
                         `SELECT COUNT(*) as year_books FROM books 
                          WHERE user_id = ? AND status = 'finished' 
-                         AND strftime('%Y', finish_date) = ?`,
-                        [req.session.userId, currentYear.toString()],
+                         AND (strftime('%Y', finish_date) = ? OR strftime('%Y', created_at) = ?)`,
+                        [req.session.userId, currentYearStr, currentYearStr],
                         (err, yearStats) => {
                             if (err) {
                                 res.status(500).json({ error: err.message });
@@ -411,8 +415,8 @@ app.get('/api/profile', requireAuth, (req, res) => {
                             db.get(
                                 `SELECT COUNT(*) as month_books FROM books 
                                  WHERE user_id = ? AND status = 'finished' 
-                                 AND strftime('%Y-%m', finish_date) = ?`,
-                                [req.session.userId, `${currentYear}-${currentMonth.toString().padStart(2, '0')}`],
+                                 AND (strftime('%Y-%m', finish_date) = ? OR strftime('%Y-%m', created_at) = ?)`,
+                                [req.session.userId, currentMonthStr, currentMonthStr],
                                 (err, monthStats) => {
                                     if (err) {
                                         res.status(500).json({ error: err.message });
@@ -437,7 +441,7 @@ app.get('/api/profile', requireAuth, (req, res) => {
                                             avg_rating: stats.avg_rating || 0
                                         },
                                         goals: {
-                            year_books: yearStats?.year_books || 0,
+                                            year_books: yearStats?.year_books || 0,
                                             month_books: monthStats?.month_books || 0
                                         }
                                     });

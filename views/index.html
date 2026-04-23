@@ -140,34 +140,34 @@
 
         .books-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-            gap: 20px;
+            grid-template-columns: repeat(auto-fill, minmax(450px, 1fr));
+            gap: 25px;
         }
 
         .book-card {
             background: white;
-            border-radius: 12px;
+            border-radius: 16px;
             display: flex;
-            gap: 15px;
-            padding: 15px;
+            gap: 20px;
+            padding: 20px;
             box-shadow: 0 2px 8px rgba(0,0,0,0.08);
             position: relative;
             transition: box-shadow 0.2s;
         }
 
         .book-card:hover {
-            box-shadow: 0 4px 12px rgba(0,0,0,0.12);
+            box-shadow: 0 6px 16px rgba(0,0,0,0.12);
         }
 
         .book-cover {
-            width: 90px;
-            height: 120px;
+            width: 120px;
+            height: 160px;
             background: #e0d5cc;
-            border-radius: 8px;
+            border-radius: 10px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 36px;
+            font-size: 48px;
             color: #8a7a6a;
             overflow: hidden;
             flex-shrink: 0;
@@ -190,16 +190,16 @@
         }
 
         .book-title {
-            font-size: 16px;
+            font-size: 18px;
             font-weight: 600;
             color: #3d1e1e;
-            margin-bottom: 4px;
+            margin-bottom: 6px;
         }
 
         .book-author {
-            font-size: 13px;
+            font-size: 14px;
             color: #8a7a6a;
-            margin-bottom: 10px;
+            margin-bottom: 12px;
         }
 
         .edit-icon {
@@ -214,19 +214,19 @@
         }
 
         .progress-section {
-            margin: 10px 0;
+            margin: 12px 0;
         }
 
         .progress-label {
-            font-size: 12px;
+            font-size: 13px;
             color: #8a7a6a;
-            margin-bottom: 5px;
+            margin-bottom: 6px;
         }
 
         .progress-bar-container {
             background: #e0d5cc;
             border-radius: 10px;
-            height: 6px;
+            height: 8px;
             overflow: hidden;
         }
 
@@ -238,19 +238,19 @@
         }
 
         .progress-text {
-            font-size: 11px;
+            font-size: 12px;
             color: #5c2e2e;
-            margin-top: 4px;
+            margin-top: 5px;
         }
 
         .stars {
             display: flex;
-            gap: 4px;
-            margin: 8px 0;
+            gap: 5px;
+            margin: 10px 0;
         }
 
         .star {
-            font-size: 18px;
+            font-size: 20px;
             color: #ddd0c0;
             cursor: pointer;
         }
@@ -260,10 +260,10 @@
         }
 
         .review-link {
-            font-size: 12px;
+            font-size: 13px;
             color: #5c2e2e;
             text-decoration: none;
-            margin-top: 8px;
+            margin-top: 10px;
             display: inline-block;
         }
 
@@ -446,6 +446,32 @@
                 align-items: flex-start;
             }
         }
+
+        @media (max-width: 768px) {
+    .books-grid {
+        grid-template-columns: 1fr;
+        gap: 20px;
+    }
+    
+    .book-card {
+        padding: 15px;
+        gap: 15px;
+    }
+    
+    .book-cover {
+        width: 90px;
+        height: 120px;
+        font-size: 36px;
+    }
+    
+    .book-title {
+        font-size: 16px;
+    }
+    
+    .book-author {
+        font-size: 12px;
+    }
+}
     </style>
 </head>
 <body>
@@ -454,9 +480,9 @@
         <div class="nav">
             <a href="/" class="active">Главная</a>
             <a href="/favorites">Избранное</a>
+            <a href="/profile">Прогресс</a>
             <span class="user-name" id="username">Загрузка...</span>
             <a href="/logout" class="logout-btn">Выйти</a>
-            <a href="/profile" class="profile-link" style="font-size: 20px;">👤</a>
         </div>
     </div>
 
