@@ -17,7 +17,6 @@
             min-height: 100vh;
         }
 
-        /* Шапка */
         .header {
             background: #5c2e2e;
             padding: 15px 30px;
@@ -78,14 +77,43 @@
             background: #3a1a1a;
         }
 
-        /* Контейнер */
         .container {
             max-width: 1200px;
             margin: 0 auto;
             padding: 30px 20px;
         }
 
-        /* Вкладки */
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .page-title {
+            font-size: 24px;
+            color: #3d1e1e;
+            font-weight: 400;
+            letter-spacing: 1px;
+        }
+
+        .add-btn {
+            background: #5c2e2e;
+            color: #f0e6d2;
+            border: none;
+            padding: 10px 24px;
+            border-radius: 30px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background 0.2s;
+        }
+
+        .add-btn:hover {
+            background: #4a2424;
+        }
+
         .tabs {
             display: flex;
             gap: 10px;
@@ -110,14 +138,12 @@
             margin-bottom: -12px;
         }
 
-        /* Сетка карточек */
         .books-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
             gap: 20px;
         }
 
-        /* Карточка книги (горизонтальная) */
         .book-card {
             background: white;
             border-radius: 12px;
@@ -133,7 +159,6 @@
             box-shadow: 0 4px 12px rgba(0,0,0,0.12);
         }
 
-        /* Фото книги */
         .book-cover {
             width: 90px;
             height: 120px;
@@ -154,7 +179,6 @@
             object-fit: cover;
         }
 
-        /* Информация о книге */
         .book-info {
             flex: 1;
         }
@@ -189,7 +213,6 @@
             color: #5c2e2e;
         }
 
-        /* Прогресс */
         .progress-section {
             margin: 10px 0;
         }
@@ -220,7 +243,6 @@
             margin-top: 4px;
         }
 
-        /* Звезды */
         .stars {
             display: flex;
             gap: 4px;
@@ -237,7 +259,6 @@
             color: #d4a54a;
         }
 
-        /* Ссылка на отзыв */
         .review-link {
             font-size: 12px;
             color: #5c2e2e;
@@ -250,7 +271,6 @@
             text-decoration: underline;
         }
 
-        /* Модальное окно */
         .modal {
             display: none;
             position: fixed;
@@ -355,6 +375,7 @@
             border-radius: 20px;
             cursor: pointer;
             font-size: 13px;
+            transition: opacity 0.2s;
         }
 
         .btn-read {
@@ -404,6 +425,7 @@
             text-align: center;
             padding: 60px;
             color: #8a7a6a;
+            grid-column: 1 / -1;
         }
 
         @media (max-width: 768px) {
@@ -418,6 +440,10 @@
                 margin-left: 0;
                 padding-left: 0;
                 border-left: none;
+            }
+            .page-header {
+                flex-direction: column;
+                align-items: flex-start;
             }
         }
     </style>
@@ -434,6 +460,11 @@
     </div>
 
     <div class="container">
+        <div class="page-header">
+            <h2 class="page-title">Мои книги</h2>
+            <button class="add-btn" onclick="openAddModal()">+ Добавить книгу</button>
+        </div>
+
         <div class="tabs">
             <button class="tab-btn active" data-tab="reading">Читаю сейчас</button>
             <button class="tab-btn" data-tab="finished">Завершённые</button>
@@ -444,7 +475,7 @@
         </div>
     </div>
 
-    <!-- Модальное окно добавления/редактирования -->
+    <!-- Модальное окно -->
     <div id="bookModal" class="modal">
         <div class="modal-content">
             <div class="modal-header">
@@ -474,7 +505,7 @@
                 </div>
                 <div class="form-group">
                     <label>Прочитано страниц</label>
-                    <input type="number" id="currentPage" min="0">
+                    <input type="number" id="currentPage" min="0" value="0">
                 </div>
                 <div class="form-group">
                     <label>Оценка (звёзды)</label>
@@ -504,10 +535,15 @@
     <script>
         let currentTab = 'reading';
         let currentRating = 0;
-        let currentBookImage = null;
         let booksData = [];
 
-        // Загрузка имени пользователя
+        // Скрытое поле для статуса
+        const hiddenStatus = document.createElement('input');
+        hiddenStatus.type = 'hidden';
+        hiddenStatus.id = 'statusHidden';
+        hiddenStatus.value = 'favorite';
+        document.getElementById('bookForm').appendChild(hiddenStatus);
+
         async function loadUser() {
             try {
                 const response = await fetch('/api/me');
@@ -522,7 +558,6 @@
             }
         }
 
-        // Загрузка книг
         async function loadBooks() {
             try {
                 const response = await fetch('/api/books');
@@ -533,7 +568,6 @@
             }
         }
 
-        // Отображение книг по вкладке
         function renderBooks() {
             let filteredBooks = [];
             if (currentTab === 'reading') {
@@ -549,7 +583,9 @@
                 return;
             }
 
-            container.innerHTML = filteredBooks.map(book => `
+            container.innerHTML = filteredBooks.map(book => {
+                const progress = book.progress || 0;
+                return `
                 <div class="book-card">
                     <div class="book-cover">
                         ${book.image ? `<img src="${book.image}" alt="обложка">` : '📖'}
@@ -566,19 +602,19 @@
                             <div class="progress-section">
                                 <div class="progress-label">Прогресс чтения</div>
                                 <div class="progress-bar-container">
-                                    <div class="progress-bar" style="width: ${book.progress || 0}%"></div>
+                                    <div class="progress-bar" style="width: ${progress}%"></div>
                                 </div>
-                                <div class="progress-text">${book.current_page || 0} из ${book.total_pages || 0} стр. (${book.progress || 0}%)</div>
+                                <div class="progress-text">${book.current_page || 0} из ${book.total_pages || 0} стр. (${progress}%)</div>
                             </div>
                         ` : `
                             <div class="stars">
                                 ${renderStars(book.rating || 0)}
                             </div>
-                            <a href="#" class="review-link" onclick="viewReview(${book.id})">📝 Отзыв</a>
+                            ${book.review ? `<a href="#" class="review-link" onclick="alert('${escapeHtml(book.review)}')">📝 Отзыв</a>` : ''}
                         `}
                     </div>
                 </div>
-            `).join('');
+            `}).join('');
         }
 
         function renderStars(rating) {
@@ -589,7 +625,6 @@
             return stars;
         }
 
-        // Настройка звезд в модалке
         function setupRatingStars() {
             const stars = document.querySelectorAll('#ratingStars .star');
             stars.forEach(star => {
@@ -609,8 +644,49 @@
             });
         }
 
+        // РАБОТАЮЩАЯ ФУНКЦИЯ setStatus
         function setStatus(status) {
-            document.getElementById('statusHidden').value = status;
+            const statusInput = document.getElementById('statusHidden');
+            if (statusInput) {
+                statusInput.value = status;
+                // Визуальная обратная связь
+                const buttons = document.querySelectorAll('.modal-btn');
+                buttons.forEach(btn => {
+                    btn.style.opacity = '0.7';
+                });
+                if (event && event.target) {
+                    event.target.style.opacity = '1';
+                }
+            }
+        }
+
+        function openAddModal() {
+            document.getElementById('modalTitle').innerText = 'Добавить книгу';
+            document.getElementById('bookId').value = '';
+            document.getElementById('bookForm').reset();
+            document.getElementById('review').value = '';
+            document.getElementById('currentPage').value = '0';
+            document.getElementById('totalPages').value = '';
+            currentRating = 0;
+            
+            const statusInput = document.getElementById('statusHidden');
+            if (statusInput) {
+                statusInput.value = 'favorite';
+            }
+            
+            const stars = document.querySelectorAll('#ratingStars .star');
+            stars.forEach(star => {
+                star.textContent = '☆';
+                star.classList.remove('filled');
+            });
+            
+            // Сброс opacity кнопок
+            const buttons = document.querySelectorAll('.modal-btn');
+            buttons.forEach(btn => {
+                btn.style.opacity = '1';
+            });
+            
+            document.getElementById('bookModal').classList.add('active');
         }
 
         function editBook(id) {
@@ -625,7 +701,11 @@
                 document.getElementById('review').value = book.review || '';
                 currentRating = book.rating || 0;
                 
-                // Обновить звезды
+                const statusInput = document.getElementById('statusHidden');
+                if (statusInput) {
+                    statusInput.value = book.status || 'favorite';
+                }
+                
                 const stars = document.querySelectorAll('#ratingStars .star');
                 stars.forEach((star, i) => {
                     if (i < currentRating) {
@@ -646,38 +726,38 @@
             document.getElementById('bookForm').reset();
             document.getElementById('bookId').value = '';
             currentRating = 0;
-            currentBookImage = null;
         }
 
-        // Добавление/обновление книги
         document.getElementById('bookForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             const id = document.getElementById('bookId').value;
+            const totalPages = parseInt(document.getElementById('totalPages').value) || 0;
+            const currentPage = parseInt(document.getElementById('currentPage').value) || 0;
+            let progress = 0;
+            if (totalPages > 0) {
+                progress = Math.round(currentPage / totalPages * 100);
+            }
+            
+            // Получаем статус из скрытого поля
+            let status = document.getElementById('statusHidden')?.value || 'favorite';
+            
+            // Автоопределение статуса на основе прогресса
+            if (currentPage === totalPages && totalPages > 0) {
+                status = 'finished';
+            } else if (currentPage > 0 && currentPage < totalPages) {
+                status = 'reading';
+            }
+            
             const bookData = {
                 title: document.getElementById('title').value,
                 author: document.getElementById('author').value,
-                total_pages: parseInt(document.getElementById('totalPages').value) || 0,
-                current_page: parseInt(document.getElementById('currentPage').value) || 0,
+                total_pages: totalPages,
+                current_page: currentPage,
                 rating: currentRating,
                 review: document.getElementById('review').value,
-                status: document.getElementById('statusHidden')?.value || 'reading'
+                status: status,
+                progress: progress
             };
-            
-            // Рассчитать прогресс
-            if (bookData.total_pages > 0) {
-                bookData.progress = Math.round(bookData.current_page / bookData.total_pages * 100);
-            } else {
-                bookData.progress = 0;
-            }
-            
-            // Определить статус если не задан
-            if (bookData.current_page === 0 && !bookData.status) {
-                bookData.status = 'favorite';
-            } else if (bookData.current_page === bookData.total_pages && bookData.total_pages > 0) {
-                bookData.status = 'finished';
-            } else if (bookData.current_page > 0) {
-                bookData.status = 'reading';
-            }
             
             try {
                 let response;
@@ -707,7 +787,6 @@
             }
         });
 
-        // Вкладки
         document.querySelectorAll('.tab-btn').forEach(btn => {
             btn.addEventListener('click', () => {
                 document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
@@ -728,12 +807,6 @@
         loadUser();
         loadBooks();
         setupRatingStars();
-        
-        // Добавляем скрытое поле для статуса
-        const hiddenStatus = document.createElement('input');
-        hiddenStatus.type = 'hidden';
-        hiddenStatus.id = 'statusHidden';
-        document.getElementById('bookForm').appendChild(hiddenStatus);
     </script>
 </body>
 </html>
