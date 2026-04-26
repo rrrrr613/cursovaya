@@ -291,7 +291,7 @@
         <div class="nav">
             <a href="/">Главная</a>
             <a href="/favorites">Избранное</a>
-             <a href="/profile" class="active">Прогресс</a>
+             <a href="/profile" class="active">Профиль</a>
             <span class="user-name" id="username">Загрузка...</span>
             <a href="/logout" class="logout-btn">Выйти</a>
         </div>
@@ -311,7 +311,7 @@
                 if (!data.authenticated) {
                     window.location.href = '/login';
                 } else {
-                    document.getElementById('username').innerHTML = `👤 ${data.username}`;
+                    document.getElementById('username').innerHTML = `${data.username}`;
                 }
             } catch (error) {
                 console.error('Ошибка:', error);
@@ -359,13 +359,13 @@
                         <div class="profile-info">
                             <h2>${escapeHtml(user.username)}</h2>
                             <p>${escapeHtml(user.email)}</p>
-                            <div class="joined-date">📅 В читательском клубе с ${new Date(user.joined).toLocaleDateString('ru-RU')}</div>
+                            <div class="joined-date">В читательском клубе с ${new Date(user.joined).toLocaleDateString('ru-RU')}</div>
                         </div>
                     </div>
                 </div>
 
                 <div class="card">
-                    <h3 class="card-title">📊 Общая статистика</h3>
+                    <h3 class="card-title">Общая статистика</h3>
                     <div class="stats-grid">
                         <div class="stat-item">
                             <div class="stat-value">${stats.finished_books}</div>
@@ -387,7 +387,7 @@
                 </div>
 
                 <div class="card">
-                    <h3 class="card-title">🎯 Годовой вызов</h3>
+                    <h3 class="card-title">Годовой вызов</h3>
                     <div class="goal-section">
                         <div class="goal-header">
                             <span>${goals.year_books} из ${yearGoal} книг в этом году</span>
@@ -404,7 +404,7 @@
                 </div>
 
                 <div class="card">
-                    <h3 class="card-title">📅 Цель на месяц</h3>
+                    <h3 class="card-title">Цель на месяц</h3>
                     <div class="goal-section">
                         <div class="goal-header">
                             <span>${goals.month_books} из ${monthGoal} книг в этом месяце</span>
@@ -422,7 +422,7 @@
 
                 ${pagesPerDay > 0 ? `
                 <div class="card">
-                    <h3 class="card-title">⚡ Ежедневная привычка</h3>
+                    <h3 class="card-title">Ежедневная привычка</h3>
                     <div class="stats-grid">
                         <div class="stat-item">
                             <div class="stat-value">${pagesPerDay}</div>
@@ -440,14 +440,14 @@
                 ` : ''}
 
                 <div class="card">
-                    <h3 class="card-title">📈 Активность по месяцам (${new Date().getFullYear()})</h3>
+                    <h3 class="card-title">Активность по месяцам (${new Date().getFullYear()})</h3>
                     <div class="chart">
                         ${renderChart(monthlyData)}
                     </div>
                 </div>
 
                 <div class="card">
-                    <h3 class="card-title">🏆 Любимые авторы</h3>
+                    <h3 class="card-title">Любимые авторы</h3>
                     <div class="author-list">
                         ${authorsData.length > 0 ? authorsData.map(a => `<span class="author-tag">${escapeHtml(a.author)} (${a.count})</span>`).join('') : '<span class="author-tag">Пока нет</span>'}
                     </div>

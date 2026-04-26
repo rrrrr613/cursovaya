@@ -380,7 +380,7 @@
         <div class="nav">
             <a href="/">Главная</a>
             <a href="/favorites" class="active">Избранное</a>
-            <a href="/profile">Прогресс</a>
+            <a href="/profile">Профиль</a>
             <span class="user-name" id="username">Загрузка...</span>
             <a href="/logout" class="logout-btn">Выйти</a>
         </div>
@@ -468,7 +468,7 @@
                 const response = await fetch('/api/me');
                 const data = await response.json();
                 if (data.authenticated) {
-                    document.getElementById('username').innerHTML = `👤 ${data.username}`;
+                    document.getElementById('username').innerHTML = ` ${data.username}`;
                 } else {
                     window.location.href = '/login';
                 }
@@ -492,14 +492,14 @@
             const container = document.getElementById('booksContainer');
             
             if (favoriteBooks.length === 0) {
-                container.innerHTML = `<div class="empty-state">📖 В избранном пока нет книг</div>`;
+                container.innerHTML = `<div class="empty-state">В избранном пока нет книг</div>`;
                 return;
             }
 
             container.innerHTML = favoriteBooks.map(book => `
                 <div class="book-card">
                     <div class="book-cover">
-                        ${book.image ? `<img src="${book.image}" alt="обложка">` : '📖'}
+                        ${book.image ? `<img src="${book.image}" alt="обложка">` : ''}
                     </div>
                     <div class="book-info">
                         <div class="book-header">
